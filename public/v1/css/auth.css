@@ -1,0 +1,267 @@
+:root {
+    --primary: #022249;
+    --primary-dark: #00297F;
+    --primary-light: #1E4FC2;
+    --primary-soft: #EAF1FF;
+
+    --body-bg: #F4F7FC;
+    --text-dark: #1F2937;
+    --text-muted: #6B7280;
+
+    --border-color: #DEE2E6;
+    --radius: 16px;
+}
+
+body {
+    background: var(--body-bg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ===========================
+   LEFT BRANDING
+=========================== */
+
+.auth-brand {
+    background: linear-gradient(135deg,
+            #022249 0%,
+            #022249 55%,
+            #022249 100%);
+
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* .auth-brand::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 700px;
+    height: 700px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .06);
+
+    top: -220px;
+    left: -220px;
+
+}
+
+.auth-brand::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .08);
+
+    right: -180px;
+    bottom: -180px;
+
+} */
+
+.auth-brand-content {
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+.auth-brand img {
+
+    width: 150px;
+
+    /* background: #fff; */
+
+    padding: 18px;
+    /*
+    border-radius: 24px;
+
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .25); */
+
+}
+
+.auth-brand h1 {
+
+    margin-top: 30px;
+
+    font-weight: 700;
+
+    font-size: 42px;
+
+}
+
+.auth-brand p {
+
+    font-size: 18px;
+
+    opacity: .9;
+
+    max-width: 420px;
+
+    margin: auto;
+
+}
+
+/* ===========================
+   RIGHT PANEL
+=========================== */
+
+.auth-form {
+
+    background: #fff;
+
+}
+
+.auth-card {
+
+    width: 100%;
+    max-width: 430px;
+
+}
+
+.auth-card h2 {
+
+    font-weight: 700;
+
+    color: var(--text-dark);
+
+}
+
+.auth-card p {
+
+    color: var(--text-muted);
+
+}
+
+/* ===========================
+   FORM
+=========================== */
+
+.form-control {
+
+    /* height: 50px; */
+
+    border-radius: 10px;
+
+    border: 1px solid var(--border-color);
+
+}
+
+.form-control:focus {
+
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 .2rem rgba(0, 51, 160, .15);
+
+}
+
+/* ===========================
+   BUTTON
+=========================== */
+
+.btn-primary {
+
+    background: var(--primary);
+
+    border-color: var(--primary);
+    border-radius: 10px;
+
+    /* height: 50px;
+
+
+
+    font-weight: 600;
+
+    transition: .3s; */
+
+}
+
+.btn-primary:hover {
+
+    background: var(--primary-dark);
+
+    border-color: var(--primary-dark);
+
+    /* transform: translateY(-2px); */
+
+}
+
+.btn-outline-secondary {
+
+    border-radius: 0 12px 12px 0;
+
+}
+
+/* ===========================
+   LINKS
+=========================== */
+
+a {
+
+    color: var(--primary);
+
+    text-decoration: none;
+
+}
+
+a:hover {
+
+    color: var(--primary-dark);
+
+}
+
+/* ===========================
+   CHECKBOX
+=========================== */
+
+.form-check-input:checked {
+
+    background-color: var(--primary);
+
+    border-color: var(--primary);
+
+}
+
+/* ===========================
+   ALERTS
+=========================== */
+
+.alert {
+
+    border-radius: 12px;
+
+}
+
+/* ===========================
+   LOGO
+=========================== */
+
+.logo-shadow {
+
+    filter: drop-shadow(0 10px 25px rgba(0, 0, 0, .25));
+
+}
+
+/* ===========================
+   MOBILE
+=========================== */
+
+@media(max-width:991px) {
+
+    .auth-form {
+
+        padding: 40px 20px;
+
+    }
+
+}
