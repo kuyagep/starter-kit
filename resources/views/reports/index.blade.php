@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title', 'System Reports')
-@section('title', 'System Reports & Analytics Dashboard')
+@section('content-header', 'Reports')
 
 @section('content')
     <div class="card card-outline card-navy">

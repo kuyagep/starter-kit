@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
@@ -21,6 +22,8 @@ class SettingController extends Controller
             // General Properties
             'app_name'           => 'required|string|max:255',
             'contact_email'      => 'required|email',
+            'app_logo'           => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'app_favicon'        => 'nullable|mimes:ico,png,x-icon|max:1024',
             'maintenance_mode'   => 'nullable|in:0,1',
             'allow_registration' => 'nullable|in:0,1',
 
@@ -35,7 +38,38 @@ class SettingController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Safely loop keys and synchronize tracking properties
+        // Fetch current settings to check for existing image file paths
+        $existingSettings = Setting::pluck('value', 'key')->toArray();
+
+        // 1. Process Logo Upload
+        if ($request->hasFile('app_logo')) {
+            // Unlink/Delete previous logo file if it exists
+            if (!empty($existingSettings['app_logo']) && Storage::disk('public')->exists($existingSettings['app_logo'])) {
+                Storage::disk('public')->delete($existingSettings['app_logo']);
+            }
+
+            $logoPath = $request->file('app_logo')->store('branding', 'public');
+            $validated['app_logo'] = $logoPath;
+        } else {
+            // Keep existing logo path if no new file uploaded
+            unset($validated['app_logo']);
+        }
+
+        // 2. Process Favicon Upload
+        if ($request->hasFile('app_favicon')) {
+            // Unlink/Delete previous favicon file if it exists
+            if (!empty($existingSettings['app_favicon']) && Storage::disk('public')->exists($existingSettings['app_favicon'])) {
+                Storage::disk('public')->delete($existingSettings['app_favicon']);
+            }
+
+            $faviconPath = $request->file('app_favicon')->store('branding', 'public');
+            $validated['app_favicon'] = $faviconPath;
+        } else {
+            // Keep existing favicon path if no new file uploaded
+            unset($validated['app_favicon']);
+        }
+
+        // 3. Loop keys and synchronize tracking properties
         foreach ($validated as $key => $value) {
             Setting::updateOrCreate(
                 ['key' => $key],
@@ -43,7 +77,7 @@ class SettingController extends Controller
             );
         }
 
-        // CRITICAL STEP: Evict obsolete runtime cache instantly
+        // Evict obsolete runtime cache instantly
         Cache::forget('global_system_settings');
 
         return response()->json([
@@ -57,6 +91,11 @@ class SettingController extends Controller
         if (str_starts_with($key, 'mail_')) {
             return 'mail';
         }
+
+        if (in_array($key, ['app_logo', 'app_favicon'])) {
+            return 'branding';
+        }
+
         return 'general';
     }
 }

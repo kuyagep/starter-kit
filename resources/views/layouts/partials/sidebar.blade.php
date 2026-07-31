@@ -89,7 +89,7 @@
                     <a href="{{ route('settings.index') }}"
                         class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-cogs"></i>
-                        <p>System Settings</p>
+                        <p>Settings</p>
                     </a>
                 </li>
             @endcan

@@ -30,6 +30,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard',  [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::post('/users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk-action');
+    Route::get('/users/export-selected', [UserController::class, 'exportSelected'])->name('users.export-selected');
+    Route::get('/users/export-all', [UserController::class, 'exportAll'])->name('users.export.all');
     Route::resource('users', UserController::class);
     // Explicit Role Assignment Route Hook
     Route::put('users/{user}/assign-roles', [UserController::class, 'assignRoles'])->name('users.assign-roles');

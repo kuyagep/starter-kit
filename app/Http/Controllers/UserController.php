@@ -12,8 +12,8 @@ class UserController extends Controller
 {
     public function index()
     {
-        // Load users with their assigned roles eager loaded to prevent N+1 queries
-        $users = User::with('roles')->get();
+        // OR fetch with pagination (recommended for large datasets)
+        $users = User::with('roles')->latest()->paginate(4);
         $roles = Role::all(); // Used to build our role selection list checkboxes/options
 
         return view('users.index', compact('users', 'roles'));
@@ -108,5 +108,99 @@ class UserController extends Controller
             'success' => true,
             'message' => 'User deleted successfully.'
         ]);
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'ids'    => 'required|array',
+            'ids.*'  => 'exists:users,id',
+            'action' => 'required|in:delete,suspend,activate',
+        ]);
+
+        $ids = $request->ids;
+        $action = $request->action;
+
+        // Prevent admin self-deletion/suspension
+        if (in_array(auth()->id(), $ids) && ($action === 'delete' || $action === 'suspend')) {
+            return response()->json([
+                'message' => 'You cannot suspend or delete your own account.'
+            ], 422);
+        }
+
+        switch ($action) {
+            case 'delete':
+                User::whereIn('id', $ids)->delete();
+                $message = count($ids) . ' user(s) deleted successfully.';
+                break;
+
+            case 'suspend':
+                User::whereIn('id', $ids)->update(['status' => 'inactive']);
+                $message = count($ids) . ' user(s) suspended successfully.';
+                break;
+
+            case 'activate':
+                User::whereIn('id', $ids)->update(['status' => 'active']);
+                $message = count($ids) . ' user(s) activated successfully.';
+                break;
+        }
+
+        return response()->json(['message' => $message]);
+    }
+
+    /**
+     * Export Selected Users to CSV
+     */
+    public function exportSelected(Request $request)
+    {
+        $ids = explode(',', $request->query('ids', ''));
+        $users = User::with('roles')->whereIn('id', $ids)->get();
+
+        return $this->generateCsvDownload($users, 'selected_users.csv');
+    }
+
+    /**
+     * Export All Users to CSV
+     */
+    public function exportAll()
+    {
+        $users = User::with('roles')->get();
+
+        return $this->generateCsvDownload($users, 'all_users.csv');
+    }
+
+    /**
+     * Helper to Stream CSV File
+     */
+    private function generateCsvDownload($users, $filename)
+    {
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function () use ($users) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Header Row
+            fputcsv($file, ['ID', 'Name', 'Username', 'Email', 'Roles', 'Status', 'Created At']);
+
+            foreach ($users as $user) {
+                $roles = $user->roles->pluck('name')->implode(', ');
+                fputcsv($file, [
+                    $user->id,
+                    $user->name,
+                    $user->username ?? 'N/A',
+                    $user->email,
+                    $roles ?: 'User',
+                    ucfirst($user->status),
+                    $user->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

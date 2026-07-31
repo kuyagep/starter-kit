@@ -11,7 +11,8 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <form id="settingsForm">
+                {{-- Form configured for file uploads --}}
+                <form id="settingsForm" enctype="multipart/form-data">
                     <div class="card card-outline card-navy shadow-sm">
                         <div class="card-header p-0 pt-1 border-bottom-0">
                             <ul class="nav nav-tabs" id="settingsTab" role="tablist">
@@ -19,6 +20,12 @@
                                     <a class="nav-link active font-weight-bold" id="general-tab" data-toggle="pill"
                                         href="#tab-general" role="tab">
                                         <i class="fas fa-sliders-h mr-1"></i> General Controls
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link font-weight-bold" id="branding-tab" data-toggle="pill"
+                                        href="#tab-branding" role="tab">
+                                        <i class="fas fa-image mr-1"></i> System Branding
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -74,6 +81,52 @@
                                                     {{ ($settings['allow_registration'] ?? '1') == '0' ? 'selected' : '' }}>
                                                     Closed (Invite-Only Entry Profiles)</option>
                                             </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- BRANDING & LOGO TAB -->
+                                <div class="tab-pane fade" id="tab-branding" role="tabpanel">
+                                    <!-- Application Logo -->
+                                    <div class="form-group row align-items-center">
+                                        <label class="col-sm-3 col-form-label">Application Logo</label>
+                                        <div class="col-sm-6">
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input image-input" id="app_logo"
+                                                    name="app_logo" accept="image/png,image/jpeg,image/jpg,image/svg+xml">
+                                                <label class="custom-file-label" for="app_logo">Choose logo file...</label>
+                                            </div>
+                                            <small class="form-text text-muted">Recommended format: PNG or SVG (Max:
+                                                2MB)</small>
+                                        </div>
+                                        <div class="col-sm-3 text-center">
+                                            {{-- Placehold.co fallback for Logo --}}
+                                            <img id="app_logo_preview"
+                                                src="{{ !empty($settings['app_logo']) ? asset('storage/' . $settings['app_logo']) : 'https://placehold.co/200x60/001f3f/ffffff?text=System+Logo' }}"
+                                                alt="Logo Preview" class="img-thumbnail" style="max-height: 80px;">
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <!-- Application Favicon -->
+                                    <div class="form-group row align-items-center">
+                                        <label class="col-sm-3 col-form-label">System Favicon</label>
+                                        <div class="col-sm-6">
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input image-input" id="app_favicon"
+                                                    name="app_favicon" accept="image/x-icon,image/png,image/ico">
+                                                <label class="custom-file-label" for="app_favicon">Choose favicon
+                                                    file...</label>
+                                            </div>
+                                            <small class="form-text text-muted">Recommended format: ICO or 32x32 PNG (Max:
+                                                1MB)</small>
+                                        </div>
+                                        <div class="col-sm-3 text-center">
+                                            {{-- Placehold.co fallback for Favicon --}}
+                                            <img id="app_favicon_preview"
+                                                src="{{ !empty($settings['app_favicon']) ? asset('storage/' . $settings['app_favicon']) : 'https://placehold.co/64x64/001f3f/ffffff?text=ICO' }}"
+                                                alt="Favicon Preview" class="img-thumbnail" style="max-height: 48px;">
                                         </div>
                                     </div>
                                 </div>
@@ -138,7 +191,6 @@
     </div>
 @endsection
 
-
 @push('scripts')
     <script>
         $(document).ready(function() {
@@ -148,22 +200,42 @@
                 }
             });
 
+            // Update file input custom label and show image preview instantly
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+
+                let inputId = $(this).attr('id');
+                if (this.files && this.files[0]) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#' + inputId + '_preview').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // Form Submit via AJAX
             $('#settingsForm').submit(function(e) {
                 e.preventDefault();
                 $('#btn-save-settings').prop('disabled', true).html(
                     '<i class="fas fa-spinner fa-spin mr-1"></i> Processing Changes...');
                 $('#form-errors').addClass('d-none').html('');
 
+                let formData = new FormData(this);
+                formData.append('_method', 'PUT');
+
                 $.ajax({
                     url: "{{ route('settings.update') }}",
-                    type: "PUT",
-                    data: $(this).serialize(),
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     dataType: "json",
                     success: function(res) {
                         $('#btn-save-settings').prop('disabled', false).html(
                             '<i class="fas fa-save mr-1"></i> Sync Configurations');
 
-                        // Trigger Phase 4 Toastr global notification instance
                         SystemAlert.toast('success', res.message);
                     },
                     error: function(xhr) {

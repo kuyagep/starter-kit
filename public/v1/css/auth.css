@@ -1,5 +1,5 @@
 :root {
-    --primary: #022249;
+    --primary: #0842a0;
     --primary-dark: #00297F;
     --primary-light: #1E4FC2;
     --primary-soft: #EAF1FF;
@@ -23,9 +23,9 @@ body {
 
 .auth-brand {
     background: linear-gradient(135deg,
-            #022249 0%,
-            #022249 55%,
-            #022249 100%);
+            #0842a0 0%,
+            #0842a0 55%,
+            #0842a0 100%);
 
     color: #fff;
     position: relative;

@@ -31,10 +31,48 @@
             </div>
 
             <div class="card-body">
+                <div class="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <!-- Left side: Bulk Actions -->
+                    <div class="d-flex align-items-center mb-2 mb-md-0">
+                        <select id="bulk-action-select" class="form-control form-control-sm mr-2" style="width: 170px;"
+                            disabled>
+                            <option value="">-- Bulk Actions --</option>
+                            <option value="activate">Set Active</option>
+                            <option value="suspend">Suspend Selected</option>
+                            <option value="delete">Delete Selected</option>
+                            <option value="export">Export Selected</option>
+                        </select>
+                        <button id="btn-apply-bulk" class="btn btn-sm btn-secondary" disabled>
+                            Apply (<span id="selected-count">0</span>)
+                        </button>
+                    </div>
+
+                    <!-- Right side: Status Filter & Export All -->
+                    <div class="d-flex align-items-center">
+                        <div class="input-group input-group-sm mr-2" style="width: 220px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-filter mr-1"></i> Status</span>
+                            </div>
+                            <select id="status-filter" class="form-control form-control-sm">
+                                <option value="all">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="pending">Awaiting Approval</option>
+                                <option value="inactive">Suspended / Inactive</option>
+                            </select>
+                        </div>
+
+                        <a href="{{ route('users.export.all') }}" class="btn btn-sm btn-outline-success text-nowrap">
+                            <i class="fas fa-file-excel mr-1"></i> Export All
+                        </a>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-hover  align-middle mb-0" id="users-table">
                         <thead>
                             <tr>
+                                <th width="40" class="text-center">
+                                    <input type="checkbox" id="select-all-users">
+                                </th>
                                 <th>Name</th>
                                 <th>Username</th>
                                 <th>Email</th>
@@ -45,7 +83,10 @@
                         </thead>
                         <tbody>
                             @forelse($users as $user)
-                                <tr id="user-row-{{ $user->id }}">
+                                <tr id="user-row-{{ $user->id }}" data-status="{{ strtolower($user->status) }}">
+                                    <td class="text-center">
+                                        <input type="checkbox" class="user-checkbox" value="{{ $user->id }}">
+                                    </td>
                                     <td class="user-name"><strong>{{ $user->name }}</strong></td>
                                     <td class="user-username">{{ $user->username ?? 'N/A' }}</td>
                                     <td class="user-email">{{ $user->email }}</td>
@@ -53,7 +94,7 @@
                                         @forelse($user->roles as $role)
                                             <span class="badge badge-info px-2 py-1 mr-1 text-xs">{{ $role->name }}</span>
                                         @empty
-                                            <span class="badge badge-secondary px-2 py-1 text-xs">Standard Guest User</span>
+                                            <span class="badge badge-secondary px-2 py-1 text-xs">User</span>
                                         @endforelse
                                     </td>
                                     <td>
@@ -104,6 +145,18 @@
                             @endforelse
                         </tbody>
                     </table>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <!-- Displaying the count breakdown -->
+                        <div class="text-muted small">
+                            Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} users
+                        </div>
+
+                        <!-- Bootstrap 4 pagination links -->
+                        <div>
+                            {{ $users->links() }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -376,25 +429,71 @@
                         $('#userModal').modal('hide');
                         $('#btn-save').prop('disabled', false).text('Save Changes');
 
-                        let badgeClass = response.user.status === 'active' ? 'badge-success' :
-                            'badge-secondary';
-                        let statusText = response.user.status.charAt(0).toUpperCase() + response
-                            .user.status.slice(1);
+                        let user = response.user;
 
+                        // 1. Build Status Badge
+                        let badgeClass = 'badge-secondary';
+                        let statusText = 'Suspended';
+                        if (user.status === 'active') {
+                            badgeClass = 'badge-success';
+                            statusText = 'Active';
+                        } else if (user.status === 'pending') {
+                            badgeClass = 'badge-warning animate-pulse';
+                            statusText = 'Awaiting Approval';
+                        }
+
+                        // 2. Build Roles Badges
+                        let rolesHtml = '';
+                        if (user.roles && user.roles.length > 0) {
+                            user.roles.forEach(function(role) {
+                                rolesHtml +=
+                                    `<span class="badge badge-info px-2 py-1 mr-1 text-xs">${role.name}</span>`;
+                            });
+                        } else {
+                            rolesHtml =
+                                `<span class="badge badge-secondary px-2 py-1 text-xs">User</span>`;
+                        }
+
+                        // 3. Extract Role Names Array for the data-roles Attribute
+                        let roleNames = user.roles ? user.roles.map(r => r.name) : [];
+                        let jsonRoles = JSON.stringify(roleNames).replace(/"/g, '&quot;');
+
+                        // 4. Build Complete Row HTML (Matching all 6 <th> columns)
                         let rowHtml = `
-                        <tr id="user-row-${response.user.id}">
-                            <td class="user-name"><strong>${response.user.name}</strong></td>
-                            <td class="user-username">${response.user.username}</td>
-                            <td class="user-email">${response.user.email}</td>
-                            <td class="user-status"><span class="badge ${badgeClass}">${statusText}</span></td>
-                            <td>
-                                <div class="btn-group">
-                                    <button class="btn btn-primary btn-sm btn-view" data-id="${response.user.id}"><i class="fas fa-eye mr-1"></i> </button>
-                                    <button class="btn btn-info btn-sm btn-edit text-white" data-id="${response.user.id}"><i class="fas fa-pencil-alt mr-1"></i> </button>
-                                    <button class="btn btn-danger btn-sm btn-delete" data-id="${response.user.id}" data-url="/users/${response.user.id}"><i class="fas fa-trash mr-1"></i> </button>
-                                </div>
-                            </td>
-                        </tr>`;
+            <tr id="user-row-${user.id}" data-status="${user.status}">
+                <td class="text-center">
+        <input type="checkbox" class="user-checkbox" value="${user.id}">
+    </td>
+                <td class="user-name"><strong>${user.name}</strong></td>
+                <td class="user-username">${user.username || 'N/A'}</td>
+                <td class="user-email">${user.email}</td>
+                <td class="user-roles">${rolesHtml}</td>
+                <td class="user-status"><span class="badge ${badgeClass} px-2 py-1">${statusText}</span></td>
+                <td>
+                    ${user.status === 'pending' ? `
+                                                                                    <button class="btn btn-success btn-sm font-weight-bold btn-toggle-status"
+                                                                                        data-id="${user.id}" data-status="active">
+                                                                                        <i class="fas fa-user-check"></i> Approve
+                                                                                    </button>
+                                                                                ` : ''}
+                    <button class="btn btn-primary btn-sm font-weight-bold btn-assign-role"
+                        data-id="${user.id}" data-name="${user.name}"
+                        data-roles="${jsonRoles}">
+                        <i class="fas fa-user-shield mr-1"></i> Roles
+                    </button>
+                    <div class="btn-group">
+                        <button class="btn btn-primary btn-sm btn-view" data-id="${user.id}">
+                            <i class="fas fa-eye mr-1"></i>
+                        </button>
+                        <button class="btn btn-info btn-sm btn-edit text-white" data-id="${user.id}">
+                            <i class="fas fa-pencil-alt mr-1"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm btn-delete" data-id="${user.id}" data-url="/users/${user.id}">
+                            <i class="fas fa-trash mr-1"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
 
                         if (id) {
                             $(`#user-row-${id}`).replaceWith(rowHtml);
@@ -402,14 +501,8 @@
                             $('#empty-row').remove();
                             $('#users-table tbody').prepend(rowHtml);
                         }
-                        SystemAlert.toast('success', 'User save successfully.');
-                        // Swal.fire({
-                        //     icon: 'success',
-                        //     title: 'Saved!',
-                        //     text: response.message,
-                        //     timer: 1500,
-                        //     showConfirmButton: false
-                        // });
+
+                        SystemAlert.toast('success', 'User saved successfully.');
                     },
                     error: function(xhr) {
                         $('#btn-save').prop('disabled', false).text('Save Changes');
@@ -580,6 +673,124 @@
                 </tr>
             `);
                 }
+            }
+        });
+
+
+        // --- 1. TOGGLE ALL CHECKBOXES ---
+        $(document).on('change', '#select-all-users', function() {
+            $('.user-checkbox').prop('checked', $(this).is(':checked'));
+            updateBulkControls();
+        });
+
+        // --- 2. INDIVIDUAL CHECKBOX CHANGE ---
+        $(document).on('change', '.user-checkbox', function() {
+            let total = $('.user-checkbox').length;
+            let checked = $('.user-checkbox:checked').length;
+
+            $('#select-all-users').prop('checked', total === checked);
+            updateBulkControls();
+        });
+
+        // --- 3. ENABLE/DISABLE BULK CONTROLS ---
+        function updateBulkControls() {
+            let selectedCount = $('.user-checkbox:checked').length;
+            $('#selected-count').text(selectedCount);
+
+            if (selectedCount > 0) {
+                $('#bulk-action-select, #btn-apply-bulk').prop('disabled', false).removeClass('btn-secondary').addClass(
+                    'btn-default');
+            } else {
+                $('#bulk-action-select, #btn-apply-bulk').prop('disabled', true).removeClass('btn-default').addClass(
+                    'btn-secondary');
+                $('#bulk-action-select').val('');
+            }
+        }
+
+        // --- 4. EXECUTE BULK ACTION ---
+        $('#btn-apply-bulk').click(function() {
+            let action = $('#bulk-action-select').val();
+            let selectedIds = $('.user-checkbox:checked').map(function() {
+                return $(this).val();
+            }).get();
+
+            if (!action) {
+                Swal.fire('Warning', 'Please select an action to perform.', 'warning');
+                return;
+            }
+
+            // EXPORT ACTION (Direct file download via Form GET)
+            if (action === 'export') {
+                let exportUrl = `/users/export-selected?ids=${selectedIds.join(',')}`;
+                window.location.href = exportUrl;
+                return;
+            }
+
+            // CONFIRMATION FOR DELETE / SUSPEND / ACTIVATE
+            let actionText = action === 'delete' ? 'delete' : `change status to ${action} for`;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `You are about to ${actionText} ${selectedIds.length} user(s).`,
+                icon: action === 'delete' ? 'warning' : 'question',
+                showCancelButton: true,
+                confirmButtonColor: action === 'delete' ? '#d33' : '#3085d6',
+                confirmButtonText: 'Yes, proceed!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/users/bulk-action',
+                        type: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            ids: selectedIds,
+                            action: action
+                        },
+                        success: function(response) {
+                            SystemAlert.toast('success', response.message);
+
+                            if (action === 'delete') {
+                                // Remove deleted rows from DOM
+                                selectedIds.forEach(id => $(`#user-row-${id}`).remove());
+                            } else {
+                                // Reload page or dynamically update status badges
+                                location.reload();
+                            }
+
+                            $('#select-all-users').prop('checked', false);
+                            updateBulkControls();
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Failed to process bulk action.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+
+        // --- DYNAMIC STATUS FILTER ---
+        $(document).on('change', '#status-filter', function() {
+            let selectedStatus = $(this).val();
+
+            $('#users-table tbody tr').each(function() {
+                // Skip empty placeholder row if present
+                if ($(this).attr('id') === 'empty-row') return;
+
+                let rowStatus = $(this).attr('data-status');
+
+                if (selectedStatus === 'all' || rowStatus === selectedStatus) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                    // Uncheck hidden checkboxes so they aren't accidentally included in bulk operations
+                    $(this).find('.user-checkbox').prop('checked', false);
+                }
+            });
+
+            // Reset "Select All" and update bulk action buttons
+            $('#select-all-users').prop('checked', false);
+            if (typeof updateBulkControls === 'function') {
+                updateBulkControls();
             }
         });
     </script>

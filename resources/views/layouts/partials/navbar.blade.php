@@ -1,10 +1,17 @@
 <nav class="main-header navbar navbar-expand navbar-light">
     <!-- Left navbar links -->
-    <ul class="navbar-nav">
+    <ul class="navbar-nav align-items-center">
         <li class="nav-item">
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
 
+        <!-- App Name with Badge -->
+        <li class="nav-item d-flex align-items-center">
+            <a href="#" class="nav-link font-weight-bold text-dark px-2 text-md d-flex align-items-center">
+                <span>{{ config('app.name', 'My Application') }}</span>
+                <span class="badge badge-primary text-xs ml-2">PRO</span>
+            </a>
+        </li>
     </ul>
 
     <!-- Right navbar links -->
@@ -15,7 +22,7 @@
                 <i class="far fa-bell fa-fw"></i>
                 @if ($unreadNotificationsCount > 0)
                     <span
-                        class="badge badge-warning navbar-badge font-weight-bold">{{ $unreadNotificationsCount }}</span>
+                        class="badge badge-success navbar-badge font-weight-bold">{{ $unreadNotificationsCount }}</span>
                 @endif
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="min-width: 320px;">
@@ -54,19 +61,72 @@
                 @endif
             </div>
         </li>
+
+        <!-- Fullscreen Button -->
         <li class="nav-item">
             <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                 <i class="fas fa-expand-arrows-alt"></i>
             </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                @csrf
-            </form>
         </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link" id="btnLogout">
-                <i class="fas fa-sign-out-alt text-primary"></i>
-                <span>Logout</span>
+
+        <!-- PHP Helper to generate UI-Avatar if profile avatar is null -->
+        @php
+            $userName = auth()->user()->name ?? 'User';
+            $uiAvatar =
+                'https://ui-avatars.com/api/?name=' . urlencode($userName) . '&background=0D8ABC&color=fff&size=256';
+
+            $userAvatar = auth()->user()->avatar
+                ? (filter_var(auth()->user()->avatar, FILTER_VALIDATE_URL)
+                    ? auth()->user()->avatar
+                    : asset('storage/' . auth()->user()->avatar))
+                : $uiAvatar;
+        @endphp
+
+        <!-- User Profile Dropdown Menu -->
+        <li class="nav-item dropdown user-menu">
+            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-toggle="dropdown"
+                aria-expanded="false">
+                <img src="{{ $userAvatar }}" onerror="this.onerror=null;this.src='{{ $uiAvatar }}';"
+                    class="user-image img-circle elevation-1 mr-2" alt="User Image"
+                    style="width: 32px; height: 32px; object-fit: cover;">
+                <span class="d-none d-md-inline font-weight-bold">{{ $userName }}</span>
             </a>
+
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <!-- User Header -->
+                <div class="dropdown-header text-center bg-light p-3 border-bottom">
+                    <img src="{{ $userAvatar }}" onerror="this.onerror=null;this.src='{{ $uiAvatar }}';"
+                        class="img-circle elevation-2 mb-2" alt="User Image"
+                        style="width: 70px; height: 70px; object-fit: cover;">
+                    <p class="mb-0 font-weight-bold text-dark">{{ $userName }}</p>
+                    <small class="text-muted d-block">{{ auth()->user()->email ?? 'user@example.com' }}</small>
+
+                    {{-- Role Badge --}}
+                    @if (auth()->check() && auth()->user()->roles->isNotEmpty())
+                        <div class="mt-1">
+                            @foreach (auth()->user()->roles as $role)
+                                <span class="badge badge-info px-2 py-1 text-xs">{{ $role->name }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Profile Links -->
+                <a href="{{ route('profile.edit') }}" class="dropdown-item py-2">
+                    <i class="fas fa-user-cog mr-2 text-primary"></i> Profile Settings
+                </a>
+                <div class="dropdown-divider"></div>
+
+                <!-- Logout Link -->
+                <a href="#" class="dropdown-item py-2 text-danger font-weight-bold" id="btnLogout">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+                </a>
+            </div>
         </li>
+
+        <!-- Hidden Logout Form -->
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
     </ul>
 </nav>
