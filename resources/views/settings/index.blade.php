@@ -102,8 +102,8 @@
                                         <div class="col-sm-3 text-center">
                                             {{-- Placehold.co fallback for Logo --}}
                                             <img id="app_logo_preview"
-                                                src="{{ !empty($settings['app_logo']) ? asset('storage/' . $settings['app_logo']) : 'https://placehold.co/200x60/001f3f/ffffff?text=System+Logo' }}"
-                                                alt="Logo Preview" class="img-thumbnail" style="max-height: 80px;">
+                                                src="{{ !empty($settings['app_logo']) ? route('image.show', 'app_logo') : 'https://placehold.co/200x60/001f3f/ffffff?text=System+Logo' }}"
+                                                alt="Logo Preview" class="img-thumbnail" style="max-height: 125px;">
                                         </div>
                                     </div>
 
@@ -125,8 +125,8 @@
                                         <div class="col-sm-3 text-center">
                                             {{-- Placehold.co fallback for Favicon --}}
                                             <img id="app_favicon_preview"
-                                                src="{{ !empty($settings['app_favicon']) ? asset('storage/' . $settings['app_favicon']) : 'https://placehold.co/64x64/001f3f/ffffff?text=ICO' }}"
-                                                alt="Favicon Preview" class="img-thumbnail" style="max-height: 48px;">
+                                                src="{{ !empty($settings['app_favicon']) ? route('image.show', 'app_favicon') : 'https://placehold.co/64x64/001f3f/ffffff?text=ICO' }}"
+                                                alt="Favicon Preview" class="img-thumbnail" style="max-height: 50px;">
                                         </div>
                                     </div>
                                 </div>

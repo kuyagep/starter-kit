@@ -11,9 +11,15 @@ class SettingController extends Controller
 {
     public function index()
     {
-        // Pluck key-value arrays to make them easy to inject inside form values
+        // Example: Fetching settings key-value pairs
         $settings = Setting::pluck('value', 'key')->toArray();
-        return view('settings.index', compact('settings'));
+
+        // Convert storage relative path to full public URL
+        $faviconUrl = !empty($settings['app_favicon'])
+            ? Storage::url($settings['app_favicon'])
+            : asset('images/default-favicon.ico'); // Fallback icon
+
+        return view('settings.index', compact('settings', 'faviconUrl'));
     }
 
     public function update(Request $request)
@@ -97,5 +103,18 @@ class SettingController extends Controller
         }
 
         return 'general';
+    }
+
+    public function showImage($key)
+    {
+        // Retrieve stored relative file path by setting key (e.g., 'app_logo')
+        $path = Setting::where('key', $key)->value('value');
+
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        // Streams the file automatically setting correct MIME type and headers
+        return Storage::disk('public')->response($path);
     }
 }

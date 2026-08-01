@@ -24,7 +24,7 @@
                         <input type="text" id="user-search-input" class="form-control"
                             placeholder="Search name or email account...">
                         <div class="input-group-append">
-                            <span class="input-group-text"><i class="fas fa-search text-sm"></i></span>
+                            <span class="input-group-text"><i class="fas fa-search text-sm text-muted"></i></span>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                     <div class="d-flex align-items-center mb-2 mb-md-0">
                         <select id="bulk-action-select" class="form-control form-control-sm mr-2" style="width: 170px;"
                             disabled>
-                            <option value="">-- Bulk Actions --</option>
+                            <option value="">Bulk Actions</option>
                             <option value="activate">Set Active</option>
                             <option value="suspend">Suspend Selected</option>
                             <option value="delete">Delete Selected</option>
@@ -47,11 +47,25 @@
                         </button>
                     </div>
 
-                    <!-- Right side: Status Filter & Export All -->
-                    <div class="d-flex align-items-center">
-                        <div class="input-group input-group-sm mr-2" style="width: 220px;">
+                    <!-- Right side: Search Input, Status Filter & Export All -->
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+
+                        {{-- Search Input Bar (Sized to match filter elements) --}}
+                        <div class="input-group input-group-sm mr-1" style="width: 240px;">
+                            <input type="text" id="user-search-input" class="form-control"
+                                placeholder="Search name or email...">
+                            <div class="input-group-append">
+                                <span class="input-group-text bg-white">
+                                    <i class="fas fa-search text-sm text-muted"></i>
+                                </span>
+                            </div>
+
+                        </div>
+
+                        {{-- Status Filter Dropdown --}}
+                        <div class="input-group input-group-sm mr-1" style="width: 210px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-filter mr-1"></i> Status</span>
+                                <span class="input-group-text"><i class="fas fa-filter me-1"></i> Status</span>
                             </div>
                             <select id="status-filter" class="form-control form-control-sm">
                                 <option value="all">All Statuses</option>
@@ -61,8 +75,9 @@
                             </select>
                         </div>
 
+                        {{-- Export All Button --}}
                         <a href="{{ route('users.export.all') }}" class="btn btn-sm btn-outline-success text-nowrap">
-                            <i class="fas fa-file-excel mr-1"></i> Export All
+                            <i class="fas fa-file-excel me-1"></i> Export All
                         </a>
                     </div>
                 </div>
@@ -107,31 +122,61 @@
                                             <span class="badge badge-danger px-2 py-1">Suspended</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        @if ($user->status === 'pending')
-                                            <button class="btn btn-success btn-sm font-weight-bold btn-toggle-status"
-                                                data-id="{{ $user->id }}" data-status="active">
-                                                <i class="fas fa-user-check"></i> Approve
+                                    <td class="align-middle text-end">
+                                        <div class="d-inline-flex align-items-center gap-1">
+
+                                            {{-- Status Action Button --}}
+                                            @if ($user->status === 'pending')
+                                                <button
+                                                    class="btn btn-sm btn-outline-success border-0 bg-success bg-opacity-10 text-success fw-semibold btn-toggle-status px-2 py-1 mr-1"
+                                                    data-id="{{ $user->id }}" data-status="active" title="Approve User">
+                                                    <i class="fas fa-user-check me-1"></i>
+                                                </button>
+                                            @elseif ($user->status === 'active')
+                                                <button
+                                                    class="btn btn-sm btn-outline-danger border-0 bg-danger bg-opacity-10 text-danger fw-semibold btn-toggle-status px-2 py-1 mr-1"
+                                                    data-id="{{ $user->id }}" data-status="suspended"
+                                                    title="Suspend User">
+                                                    <i class="fas fa-user-slash me-1"></i>
+                                                </button>
+                                            @elseif ($user->status === 'suspended')
+                                                <button
+                                                    class="btn btn-sm btn-outline-warning border-0 bg-warning bg-opacity-10 text-warning fw-semibold btn-toggle-status px-2 py-1 mr-1"
+                                                    data-id="{{ $user->id }}" data-status="active"
+                                                    title="Reactivate User">
+                                                    <i class="fas fa-user-shield me-1"></i>
+                                                </button>
+                                            @endif
+
+                                            {{-- Roles Button --}}
+                                            <button
+                                                class="btn btn-sm btn-primary border-0 bg-opacity-10 fw-semibold btn-assign-role px-2 py-1 mr-1"
+                                                data-id="{{ $user->id }}" data-name="{{ $user->name }}"
+                                                data-roles="{{ json_encode($user->roles->pluck('name')) }}"
+                                                title="Manage Roles">
+                                                <i class="fas fa-user-shield me-1"></i>
                                             </button>
-                                        @endif
-                                        <!-- Assign Roles Launch Control Trigger Button Component -->
-                                        <button class="btn btn-primary btn-sm font-weight-bold btn-assign-role"
-                                            data-id="{{ $user->id }}" data-name="{{ $user->name }}"
-                                            data-roles="{{ json_encode($user->roles->pluck('name')) }}">
-                                            <i class="fas fa-user-shield mr-1"></i> Roles
-                                        </button>
-                                        <div class="btn-group">
-                                            <button class="btn btn-primary btn-sm btn-view" data-id="{{ $user->id }}">
-                                                <i class="fas fa-eye mr-1"></i>
+
+                                            {{-- View Button --}}
+                                            <button class="btn btn-sm btn-info border-0 btn-view px-2 py-1 mr-1"
+                                                data-id="{{ $user->id }}" title="View Profile">
+                                                <i class="fas fa-eye"></i>
                                             </button>
-                                            <button class="btn btn-info btn-sm btn-edit text-white"
-                                                data-id="{{ $user->id }}">
-                                                <i class="fas fa-pencil-alt mr-1"></i>
+
+                                            {{-- Edit Button --}}
+                                            <button
+                                                class="btn btn-sm btn-warning border-0 text-white btn-edit px-2 py-1 mr-1"
+                                                data-id="{{ $user->id }}" title="Edit User">
+                                                <i class="fas fa-pencil-alt"></i>
                                             </button>
-                                            <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $user->id }}"
-                                                data-url="{{ route('users.destroy', $user) }}">
-                                                <i class="fas fa-trash mr-1"></i>
+
+                                            {{-- Delete Button --}}
+                                            <button class="btn btn-sm btn-danger border-0 btn-delete px-2 py-1 mr-1"
+                                                data-id="{{ $user->id }}"
+                                                data-url="{{ route('users.destroy', $user) }}" title="Delete User">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
+
                                         </div>
                                     </td>
                                 </tr>
@@ -333,22 +378,88 @@
                 }
             });
 
-            $('.btn-toggle-status').on('click', function() {
+            $(document).on('click', '.btn-toggle-status', function() {
                 const userId = $(this).data('id');
                 const targetStatus = $(this).data('status');
 
-                $.ajax({
-                    url: `/users/${userId}/status`,
-                    type: "PATCH",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        status: targetStatus
-                    },
-                    success: function(res) {
-                        SystemAlert.toast('success', res.message);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
+                // Configure dynamic text, button colors, and icons based on target status
+                let titleText = 'Confirm Action';
+                let bodyText = `Are you sure you want to change this user's status to ${targetStatus}?`;
+                let confirmBtnText = 'Yes, proceed!';
+                let confirmBtnColor = '#3085d6';
+                let iconType = 'question';
+
+                if (targetStatus === 'suspended') {
+                    titleText = 'Suspend User Account?';
+                    bodyText = 'This user will immediately lose access to the system.';
+                    confirmBtnText = 'Yes, suspend user';
+                    confirmBtnColor = '#d33';
+                    iconType = 'warning';
+                } else if (targetStatus === 'active') {
+                    titleText = 'Activate User Account?';
+                    bodyText = 'This user will be granted system access based on their assigned role.';
+                    confirmBtnText = 'Yes, activate user';
+                    confirmBtnColor = '#28a745';
+                    iconType = 'question';
+                }
+
+                // Trigger SweetAlert2 Confirmation Modal
+                Swal.fire({
+                    title: titleText,
+                    text: bodyText,
+                    icon: iconType,
+                    showCancelButton: true,
+                    confirmButtonColor: confirmBtnColor,
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: confirmBtnText,
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        // Show loading state while processing request
+                        Swal.showLoading();
+
+                        $.ajax({
+                            url: `/users/${userId}/status`,
+                            type: "PATCH",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                status: targetStatus
+                            },
+                            success: function(res) {
+                                if (typeof SystemAlert !== 'undefined' && SystemAlert
+                                    .toast) {
+                                    SystemAlert.toast('success', res.message);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Updated!',
+                                        text: res.message,
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                }
+
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            },
+                            error: function(err) {
+                                const errorMsg = err.responseJSON?.message ||
+                                    'An error occurred while updating status.';
+
+                                if (typeof SystemAlert !== 'undefined' && SystemAlert
+                                    .toast) {
+                                    SystemAlert.toast('error', errorMsg);
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error!',
+                                        text: errorMsg
+                                    });
+                                }
+                            }
+                        });
                     }
                 });
             });
@@ -471,11 +582,11 @@
                 <td class="user-status"><span class="badge ${badgeClass} px-2 py-1">${statusText}</span></td>
                 <td>
                     ${user.status === 'pending' ? `
-                                                                                    <button class="btn btn-success btn-sm font-weight-bold btn-toggle-status"
-                                                                                        data-id="${user.id}" data-status="active">
-                                                                                        <i class="fas fa-user-check"></i> Approve
-                                                                                    </button>
-                                                                                ` : ''}
+                                                                                                                                                                                            <button class="btn btn-success btn-sm font-weight-bold btn-toggle-status"
+                                                                                                                                                                                                data-id="${user.id}" data-status="active">
+                                                                                                                                                                                                <i class="fas fa-user-check"></i> Approve
+                                                                                                                                                                                            </button>
+                                                                                                                                                                                        ` : ''}
                     <button class="btn btn-primary btn-sm font-weight-bold btn-assign-role"
                         data-id="${user.id}" data-name="${user.name}"
                         data-roles="${jsonRoles}">

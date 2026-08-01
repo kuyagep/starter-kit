@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CaptchaController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
@@ -85,6 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/password', [ProfileController::class, 'password'])
         ->name('profile.password');
 });
+Route::get('/settings/image/{key}', [SettingController::class, 'showImage'])->name('image.show');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/dts.php';

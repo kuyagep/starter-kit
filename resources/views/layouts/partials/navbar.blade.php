@@ -96,7 +96,7 @@
                 <!-- User Header -->
                 <div class="dropdown-header text-center bg-light p-3 border-bottom">
                     <img src="{{ $userAvatar }}" onerror="this.onerror=null;this.src='{{ $uiAvatar }}';"
-                        class="img-circle elevation-2 mb-2" alt="User Image"
+                        class="img-circle elevation-1 mb-2" alt="User Image"
                         style="width: 70px; height: 70px; object-fit: cover;">
                     <p class="mb-0 font-weight-bold text-dark">{{ $userName }}</p>
                     <small class="text-muted d-block">{{ auth()->user()->email ?? 'user@example.com' }}</small>
@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Profile Links -->
-                <a href="{{ route('profile.edit') }}" class="dropdown-item py-2">
+                <a href="{{ route('profile.index') }}" class="dropdown-item py-2">
                     <i class="fas fa-user-cog mr-2 text-primary"></i> Profile Settings
                 </a>
                 <div class="dropdown-divider"></div>

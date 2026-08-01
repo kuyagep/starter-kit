@@ -58,15 +58,23 @@ class UserController extends Controller
 
     public function updateStatus(Request $request, User $user)
     {
-        $validated = $request->validate([
-            'status' => 'required|in:pending,active,suspended'
+        $request->validate([
+            'status' => ['required', 'string', 'in:active,suspended,pending'],
         ]);
 
-        $user->update(['status' => $validated['status']]);
+        $user->update([
+            'status' => $request->status,
+        ]);
+
+        $statusMessage = match ($request->status) {
+            'active' => 'User account has been activated.',
+            'suspended' => 'User account has been suspended.',
+            default => 'User status updated successfully.',
+        };
 
         return response()->json([
             'success' => true,
-            'message' => "Account verification identity for '{$user->name}' altered to: {$validated['status']}."
+            'message' => $statusMessage,
         ]);
     }
 

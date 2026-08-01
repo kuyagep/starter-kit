@@ -1,4 +1,4 @@
-@extends('layouts.auth.app')
+@extends('layouts.auth-split')
 
 @section('title', 'Forgot Password')
 
