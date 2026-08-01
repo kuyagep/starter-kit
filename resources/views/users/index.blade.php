@@ -18,16 +18,7 @@
                     <i class="fas fa-users mr-1"></i> Registered Users
                 </h3>
 
-                <div class="card-tools" style="max-width: 800px;">
-                    <!-- Real-time Filter Search Input Bar Component -->
-                    <div class="input-group" style="max-width: 800px;">
-                        <input type="text" id="user-search-input" class="form-control"
-                            placeholder="Search name or email account...">
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i class="fas fa-search text-sm text-muted"></i></span>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
             <div class="card-body">

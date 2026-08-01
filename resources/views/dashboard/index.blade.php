@@ -183,48 +183,91 @@
             </div>
         @endrole
 
-        @if (isset($announcements) && $announcements->isNotEmpty())
-            <div class="mb-4">
-                @foreach ($announcements as $announcement)
-                    @php
-                        $icon = match ($announcement->type) {
-                            'warning' => 'fa-exclamation-triangle',
-                            'danger' => 'fa-bell',
-                            'success' => 'fa-check-circle',
-                            default => 'fa-info-circle',
-                        };
-                    @endphp
+        <div class="row mb-3">
+            <div class="col">
+                @if (isset($announcements) && $announcements->isNotEmpty())
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div
+                            class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title fw-bold font-weight-bold mb-0 text-dark d-flex align-items-center">
+                                <i class="fas fa-bullhorn text-primary me-2 mr-2"></i> Announcement Feed
+                            </h5>
+                        </div>
 
-                    <div class="alert alert-{{ $announcement->type }} alert-dismissible fade show border-0 shadow-sm mb-3"
-                        role="alert">
-                        <div class="d-flex align-items-start">
-                            <div class="me-3 mr-3 fs-4 h4 mb-0 align-self-center">
-                                <i class="fas {{ $icon }}"></i>
+                        <div class="card-body p-0 max-vh-50 overflow-auto">
+                            <div class="list-group list-group-flush">
+                                @foreach ($announcements as $announcement)
+                                    @php
+                                        // Type configuration mapping
+                                        $config = match ($announcement->type) {
+                                            'warning' => [
+                                                'icon' => 'fa-exclamation-triangle',
+                                                'bg' => 'bg-warning',
+                                                'text' => 'text-warning',
+                                                'badge' => 'Warning',
+                                            ],
+                                            'danger' => [
+                                                'icon' => 'fa-bell',
+                                                'bg' => 'bg-danger',
+                                                'text' => 'text-danger',
+                                                'badge' => 'Urgent',
+                                            ],
+                                            'success' => [
+                                                'icon' => 'fa-check-circle',
+                                                'bg' => 'bg-success',
+                                                'text' => 'text-success',
+                                                'badge' => 'Notice',
+                                            ],
+                                            default => [
+                                                'icon' => 'fa-info-circle',
+                                                'bg' => 'bg-info',
+                                                'text' => 'text-info',
+                                                'badge' => 'Info',
+                                            ],
+                                        };
+                                    @endphp
+
+                                    <div class="list-group-item p-3 border-bottom transition-hover">
+                                        <div class="d-flex align-items-start">
+
+                                            {{-- Type Icon Avatar / Indicator --}}
+                                            <div class="rounded-circle {{ $config['bg'] }} bg-opacity-10 {{ $config['text'] }} d-flex align-items-center justify-content-center me-3 mr-3 flex-shrink-0"
+                                                style="width: 42px; height: 42px;">
+                                                <i class="fas {{ $config['icon'] }} fs-5"></i>
+                                            </div>
+
+                                            {{-- News Feed Item Content --}}
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                                    <h6 class="fw-bold font-weight-bold mb-0 text-dark text-truncate pe-2">
+                                                        {{ $announcement->title }}
+                                                    </h6>
+                                                </div>
+
+                                                {{-- Rich Text Body --}}
+                                                <div class="announcement-body text-secondary small mb-2">
+                                                    {!! $announcement->content !!}
+                                                </div>
+
+                                                {{-- Timestamp Footer --}}
+                                                <div class="d-flex align-items-center text-muted extra-small">
+                                                    <i class="far fa-clock me-1 mr-1"></i>
+                                                    <span>{{ $announcement->created_at->diffForHumans() }}</span>
+                                                    <span class="mx-1">•</span>
+                                                    <span>{{ $announcement->created_at->format('M d, Y h:i A') }}</span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-
-                            <div class="flex-grow-1">
-                                <h6 class="alert-heading fw-bold font-weight-bold mb-1">{{ $announcement->title }}</h6>
-
-                                {{-- Render rich text HTML safely --}}
-                                <div class="announcement-body small mb-0">
-                                    {!! $announcement->content !!}
-                                </div>
-
-                                <small class="text-muted extra-small mt-1 d-block">
-                                    <i class="far fa-clock me-1 mr-1"></i> Posted
-                                    {{ $announcement->created_at->diffForHumans() }}
-                                </small>
-                            </div>
-
-                            <button type="button" class="close btn-close opacity-75" data-dismiss="alert"
-                                data-bs-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true" class="d-md-none">&times;</span>
-                            </button>
                         </div>
                     </div>
-                @endforeach
+                @endif
             </div>
-        @endif
+
+        </div>
 
     </div><!--/. container-fluid -->
 

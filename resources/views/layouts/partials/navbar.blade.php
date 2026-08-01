@@ -89,7 +89,7 @@
                 <img src="{{ $userAvatar }}" onerror="this.onerror=null;this.src='{{ $uiAvatar }}';"
                     class="user-image img-circle elevation-1 mr-2" alt="User Image"
                     style="width: 32px; height: 32px; object-fit: cover;">
-                <span class="d-none d-md-inline font-weight-bold">{{ $userName }}</span>
+                <span class="d-none d-md-inline font-weight-bold">{{ Str::limit($userName, 20) }}</span>
             </a>
 
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">

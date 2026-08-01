@@ -28,8 +28,7 @@
                             <div class="text-center position-relative mb-3">
                                 <img id="avatar-preview" class="profile-user-img img-fluid img-circle shadow-sm"
                                     style="width: 128px; height: 128px; object-fit: cover;"
-                                    src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=0D8ABC&color=fff&size=256' }}"
-                                    alt="Profile Avatar">
+                                    src="{{ route('users.avatar', auth()->id()) }}" alt="Profile Avatar">
                             </div>
 
                             <h3 class="profile-username text-center font-weight-bold mb-1">

@@ -22,7 +22,7 @@ class ProfileController extends Controller
     public function index(Request $request): View
     {
         $provinces = Province::orderBy('name', 'asc')->get();
-
+        // dd($request->user());
         return view('profile.index', [
             'user' => $request->user(),
             'provinces' => $provinces
@@ -131,5 +131,30 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Serve the user's avatar or a default fallback.
+     */
+    public function avatar()
+    {
+        $user = auth()->user();
+
+        // Check if user has an avatar set and if it exists on the public disk
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            return response()->file(Storage::disk('public')->path($user->avatar));
+        }
+
+        // Fallback: Redirect to UI Avatars with user's name or serve a default avatar file
+        return redirect('https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&color=7F9CF5&background=EBF4FF');
+    }
+
+    public function showAvatar(\App\Models\User $user)
+    {
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            return response()->file(Storage::disk('public')->path($user->avatar));
+        }
+
+        return redirect('https://ui-avatars.com/api/?name=' . urlencode($user->name));
     }
 }

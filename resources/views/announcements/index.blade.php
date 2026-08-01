@@ -34,7 +34,7 @@
                                 <th style="width: 15%;">Status</th>
                                 <th style="width: 15%;">Posted By</th>
                                 <th style="width: 15%;">Date</th>
-                                <th style="width: 10%;" class="text-end text-right">Actions</th>
+                                <th style="width: 10%;" class="text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,7 +74,7 @@
                                         <small
                                             class="text-muted extra-small">{{ $announcement->created_at->format('h:i A') }}</small>
                                     </td>
-                                    <td class="text-end text-right">
+                                    <td class="text-right">
                                         <button type="button" class="btn btn-sm btn-outline-danger btn-delete-announcement"
                                             data-id="{{ $announcement->id }}" title="Delete Announcement">
                                             <i class="fas fa-trash-alt"></i>
@@ -97,7 +97,7 @@
             {{-- Pagination --}}
             @if ($announcements->hasPages())
                 <div class="card-footer bg-white py-3">
-                    <div class="float-right float-end">
+                    <div class="float-right ">
                         {{ $announcements->links() }}
                     </div>
                 </div>
