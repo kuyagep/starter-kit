@@ -94,6 +94,24 @@
                 </li>
             @endcan
 
+            @can('announcements.manage')
+                <li class="nav-item">
+                    <a href="{{ route('announcements.index') }}"
+                        class="nav-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-bullhorn text-warning"></i>
+                        <p>
+                            Announcements
+                            @php
+                                $activeAnnouncementsCount = \App\Models\Announcement::where('is_active', true)->count();
+                            @endphp
+                            @if ($activeAnnouncementsCount > 0)
+                                <span class="badge bg-warning text-dark float-end">{{ $activeAnnouncementsCount }}</span>
+                            @endif
+                        </p>
+                    </a>
+                </li>
+            @endcan
+
         </ul>
     </nav>
     <!-- /.sidebar-menu -->

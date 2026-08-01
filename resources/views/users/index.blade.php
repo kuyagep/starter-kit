@@ -139,7 +139,7 @@
                                                     title="Suspend User">
                                                     <i class="fas fa-user-slash me-1"></i>
                                                 </button>
-                                            @elseif ($user->status === 'suspended')
+                                            @elseif ($user->status === 'suspended' || $user->status === 'inactive')
                                                 <button
                                                     class="btn btn-sm btn-outline-warning border-0 bg-warning bg-opacity-10 text-warning fw-semibold btn-toggle-status px-2 py-1 mr-1"
                                                     data-id="{{ $user->id }}" data-status="active"
@@ -568,43 +568,77 @@
                         // 3. Extract Role Names Array for the data-roles Attribute
                         let roleNames = user.roles ? user.roles.map(r => r.name) : [];
                         let jsonRoles = JSON.stringify(roleNames).replace(/"/g, '&quot;');
+                        let deleteUrl = "{{ route('users.destroy', ':id') }}".replace(':id',
+                            user.id);
 
-                        // 4. Build Complete Row HTML (Matching all 6 <th> columns)
+                        // 4. Build Dynamic Status Action Button
+                        let statusBtnHtml = '';
+                        if (user.status === 'pending') {
+                            statusBtnHtml = `
+                    <button class="btn btn-sm btn-outline-success border-0 bg-success bg-opacity-10 text-success fw-semibold btn-toggle-status px-2 py-1 mr-1"
+                        data-id="${user.id}" data-status="active" title="Approve User">
+                        <i class="fas fa-user-check me-1"></i>
+                    </button>`;
+                        } else if (user.status === 'active') {
+                            statusBtnHtml = `
+                    <button class="btn btn-sm btn-outline-danger border-0 bg-danger bg-opacity-10 text-danger fw-semibold btn-toggle-status px-2 py-1 mr-1"
+                        data-id="${user.id}" data-status="suspended" title="Suspend User">
+                        <i class="fas fa-user-slash me-1"></i>
+                    </button>`;
+                        } else if (user.status === 'suspended') {
+                            statusBtnHtml = `
+                    <button class="btn btn-sm btn-outline-warning border-0 bg-warning bg-opacity-10 text-warning fw-semibold btn-toggle-status px-2 py-1 mr-1"
+                        data-id="${user.id}" data-status="active" title="Reactivate User">
+                        <i class="fas fa-user-shield me-1"></i>
+                    </button>`;
+                        }
+
+                        // 5. Build Complete Row HTML
                         let rowHtml = `
-            <tr id="user-row-${user.id}" data-status="${user.status}">
-                <td class="text-center">
-        <input type="checkbox" class="user-checkbox" value="${user.id}">
-    </td>
-                <td class="user-name"><strong>${user.name}</strong></td>
-                <td class="user-username">${user.username || 'N/A'}</td>
-                <td class="user-email">${user.email}</td>
-                <td class="user-roles">${rolesHtml}</td>
-                <td class="user-status"><span class="badge ${badgeClass} px-2 py-1">${statusText}</span></td>
-                <td>
-                    ${user.status === 'pending' ? `
-                                                                                                                                                                                            <button class="btn btn-success btn-sm font-weight-bold btn-toggle-status"
-                                                                                                                                                                                                data-id="${user.id}" data-status="active">
-                                                                                                                                                                                                <i class="fas fa-user-check"></i> Approve
-                                                                                                                                                                                            </button>
-                                                                                                                                                                                        ` : ''}
-                    <button class="btn btn-primary btn-sm font-weight-bold btn-assign-role"
-                        data-id="${user.id}" data-name="${user.name}"
-                        data-roles="${jsonRoles}">
-                        <i class="fas fa-user-shield mr-1"></i> Roles
-                    </button>
-                    <div class="btn-group">
-                        <button class="btn btn-primary btn-sm btn-view" data-id="${user.id}">
-                            <i class="fas fa-eye mr-1"></i>
-                        </button>
-                        <button class="btn btn-info btn-sm btn-edit text-white" data-id="${user.id}">
-                            <i class="fas fa-pencil-alt mr-1"></i>
-                        </button>
-                        <button class="btn btn-danger btn-sm btn-delete" data-id="${user.id}" data-url="/users/${user.id}">
-                            <i class="fas fa-trash mr-1"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
+                <tr id="user-row-${user.id}" data-status="${user.status}">
+                    <td class="text-center align-middle">
+                        <input type="checkbox" class="user-checkbox" value="${user.id}">
+                    </td>
+                    <td class="user-name align-middle"><strong>${user.name}</strong></td>
+                    <td class="user-username align-middle">${user.username || 'N/A'}</td>
+                    <td class="user-email align-middle">${user.email}</td>
+                    <td class="user-roles align-middle">${rolesHtml}</td>
+                    <td class="user-status align-middle">
+                        <span class="badge ${badgeClass} px-2 py-1">${statusText}</span>
+                    </td>
+                    <td class="align-middle text-end">
+                        <div class="d-inline-flex align-items-center gap-1">
+                            ${statusBtnHtml}
+
+                            <button class="btn btn-sm btn-primary border-0 bg-opacity-10 fw-semibold btn-assign-role px-2 py-1 mr-1"
+                                data-id="${user.id}"
+                                data-name="${user.name}"
+                                data-roles="${jsonRoles}"
+                                title="Manage Roles">
+                                <i class="fas fa-user-shield me-1"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-info border-0 btn-view px-2 py-1 mr-1"
+                                data-id="${user.id}"
+                                title="View Profile">
+                                <i class="fas fa-eye"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-warning border-0 text-white btn-edit px-2 py-1 mr-1"
+                                data-id="${user.id}"
+                                title="Edit User">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-danger border-0 btn-delete px-2 py-1 mr-1"
+                                data-id="${user.id}"
+                                data-url="${deleteUrl}"
+                                title="Delete User">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
 
                         if (id) {
                             $(`#user-row-${id}`).replaceWith(rowHtml);

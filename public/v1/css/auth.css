@@ -32,6 +32,23 @@ body {
     overflow: hidden;
 }
 
+/* Prevent images and videos from overflowing alert banners */
+.announcement-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.announcement-body table {
+    width: 100% !important;
+    background-color: #fff;
+}
+
+.announcement-body .note-video-clip {
+    max-width: 100%;
+    height: 250px;
+}
+
 /* .auth-brand::before {
 
     content: "";

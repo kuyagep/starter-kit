@@ -1,4 +1,4 @@
-@extends('layouts.auth.app')
+@extends('layouts.auth-split')
 
 @section('title', 'Reset Password')
 
@@ -18,6 +18,7 @@
 
             <form method="POST" action="{{ route('password.update') }}">
                 @csrf
+                {{-- @method('PUT') --}}
 
                 <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
@@ -25,8 +26,7 @@
                 <div class="mb-3">
 
                     <input type="email" name="email" value="{{ old('email', $request->email) }}"
-                        class="form-control @error('email') is-invalid @enderror" placeholder="Email Address" required
-                        autofocus>
+                        class="form-control @error('email') is-invalid @enderror" placeholder="Email Address" required>
 
                     @error('email')
                         <div class="invalid-feedback">
@@ -40,7 +40,8 @@
                 <div class="mb-3">
 
                     <input type="password" id="password" name="password"
-                        class="form-control @error('password') is-invalid @enderror" placeholder="New Password" required>
+                        class="form-control @error('password') is-invalid @enderror" placeholder="New Password" autofocus
+                        required>
 
                     @error('password')
                         <div class="invalid-feedback">

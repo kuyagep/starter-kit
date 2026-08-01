@@ -26,11 +26,19 @@ class UserController extends Controller
             'username' => 'required|string|unique:users,username|max:255',
             'email' => 'required|string|email|unique:users,email|max:255',
             'password' => 'required|string|min:8',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:active,pending,suspended',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+
+        // 1. Create the user
         $user = User::create($validated);
+
+        // 2. Assign default "Staff" role
+        $user->assignRole('Staff');
+
+        // 3. Load roles relationship so response contains role data for AJAX rendering
+        $user->load('roles');
 
         return response()->json([
             'success' => true,

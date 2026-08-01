@@ -23,7 +23,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'contact_email',
-                'value' => 'helpdesk@masterdata.local',
+                'value' => 'helpdesk@sdodavsur.com',
                 'group' => 'general'
             ],
             [
@@ -55,17 +55,17 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'mail_username',
-                'value' => 'demo_user_id',
+                'value' => '8ea0568d116c3c',
                 'group' => 'mail'
             ],
             [
                 'key' => 'mail_password',
-                'value' => 'demo_secret_pass',
+                'value' => '470f647d0de67d',
                 'group' => 'mail'
             ],
             [
                 'key' => 'mail_from_address',
-                'value' => 'noreply@systam.com',
+                'value' => 'no-reply@sdodavsur.com',
                 'group' => 'mail'
             ],
         ];

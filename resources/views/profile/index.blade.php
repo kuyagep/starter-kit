@@ -328,11 +328,11 @@
                                     <div class="col-12 form-group mb-0">
                                         <label class="form-label small text-muted mb-1" for="purok">Purok / Zone /
                                             Street</label>
-                                        <input type="text" name="purok" id="purok"
-                                            value="{{ old('purok', auth()->user()->purok) }}"
-                                            class="form-control @error('purok') is-invalid @enderror"
+                                        <input type="text" name="street" id="street"
+                                            value="{{ old('street', auth()->user()->purok) }}"
+                                            class="form-control @error('street') is-invalid @enderror"
                                             placeholder="e.g., Purok 3, Roxas St.">
-                                        @error('purok')
+                                        @error('street')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -521,12 +521,12 @@
                     })
                     .then(data => {
                         barangaySelect.innerHTML =
-                        '<option value="" selected disabled>Select Barangay</option>';
+                            '<option value="" selected disabled>Select Barangay</option>';
                         data.forEach(barangay => {
                             const selected = (selectedBarangayId && selectedBarangayId == barangay
-                                .barangay_id) ? 'selected' : '';
+                                .id) ? 'selected' : '';
                             barangaySelect.innerHTML +=
-                                `<option value="${barangay.barangay_id}" ${selected}>${barangay.name}</option>`;
+                                `<option value="${barangay.id}" ${selected}>${barangay.name}</option>`;
                         });
                         barangaySelect.disabled = false;
                     })

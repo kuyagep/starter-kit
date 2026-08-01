@@ -11,7 +11,7 @@
             <!-- Branding Logo Section (Uses System Settings fallback) -->
             <div class="mb-4 text-center text-lg-start">
                 <a href="{{ url('/') }}">
-                    <img src="{{ !empty($settings['app_logo']) ? asset('storage/' . $settings['app_logo']) : 'http://127.0.0.1:8000/v1/images/division_logo_blue.png' }}"
+                    <img src="{{ !empty($settings['app_logo']) ? route('image.show', 'app_logo') : 'http://127.0.0.1:8000/v1/images/division_logo_blue.png' }}"
                         alt="{{ $settings['app_name'] ?? 'System Logo' }}" class="img-fluid" style="max-height: 90px;">
                 </a>
             </div>
@@ -100,7 +100,7 @@
                         </div>
                     </div>
                     @error('captcha')
-                        <div class="invalid-feedback d-block small mt-1">{{ $message }}</div>
+                        <div class="invalid-feedback d-block small mt-1">Code is required</div>
                     @enderror
                 </div>
 

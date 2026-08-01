@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\CaptchaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
@@ -76,6 +77,9 @@ Route::middleware(['auth'])->group(function () {
         auth()->user()->unreadNotifications->markAsRead();
         return response()->json(['success' => true]);
     })->name('notifications.clear');
+
+    Route::resource('announcements', AnnouncementController::class)->only(['index', 'store', 'destroy']);
+    Route::patch('announcements/{id}/toggle', [AnnouncementController::class, 'toggleStatus'])->name('announcements.toggle');
 });
 
 Route::middleware('auth')->group(function () {
