@@ -25,8 +25,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SettingSeeder::class,
             RolesAndPermissionsSeeder::class,
-            MasterDataSeeder::class,
             \Yajra\Address\Seeders\AddressSeeder::class,
+            DepartmentAndOfficeSeeder::class
         ]);
     }
 }

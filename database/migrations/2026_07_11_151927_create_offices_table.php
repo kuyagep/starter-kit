@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('offices', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('name')->unique(); // e.g., "Digos City NHS", "District I", "Records Section"
-            $table->string('code')->nullable()->unique(); // e.g., "DC-NHS", "DIST-1", "REC-DIV"
-            $table->string('building_location')->nullable();
-            $table->enum('office_type', ['Division Office', 'District', 'School'])->default('Division Office');
-            // Conditional tracking metadata
-            $table->string('school_id')->nullable()->unique(); // Active only if office_type is 'School'
+            $table->foreignUlid('department_id')->constrained()->cascadeOnDelete();
+            $table->string('code')->unique()->nullable();
+            $table->string('name');
             $table->timestamps();
         });
     }

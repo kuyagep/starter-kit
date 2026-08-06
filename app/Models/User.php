@@ -33,7 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'mobile_number',
         'birthdate',
-        'gender',
+        'sex',
         'religion',
         'disability',
         'ethnic_group',

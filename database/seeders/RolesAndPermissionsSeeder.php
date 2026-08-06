@@ -72,7 +72,7 @@ class RolesAndPermissionsSeeder extends Seeder
             [
                 'username' => 'superadmin',
                 'name' => 'Super Admin User',
-                'password' => Hash::make('superadmin123'),
+                'password' => Hash::make('password'),
                 'email_verified_at' => now(),
                 'status' => 'active',
             ]
@@ -84,7 +84,7 @@ class RolesAndPermissionsSeeder extends Seeder
             [
                 'username' => 'admin',
                 'name' => 'Admin User',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make('password'),
                 'email_verified_at' => now(),
                 'status' => 'active',
             ]
@@ -95,7 +95,7 @@ class RolesAndPermissionsSeeder extends Seeder
             [
                 'username' => 'staff',
                 'name' => 'Staff User',
-                'password' => Hash::make('staff123'),
+                'password' => Hash::make('password'),
                 'email_verified_at' => now(),
                 'status' => 'active',
             ]

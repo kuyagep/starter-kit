@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('suffix')->nullable();
             $table->string('name'); // Combined string
-
+            $table->string('position')->nullable();
             // Auth & Credentials
             $table->string('username')->unique();
             $table->string('email')->unique();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('password');
 
             // Profile Details
-            $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
+            $table->enum('sex', ['Male', 'Female'])->nullable();
             $table->string('mobile_number')->nullable();
             $table->date('birthdate')->nullable();
             $table->string('religion')->nullable();
