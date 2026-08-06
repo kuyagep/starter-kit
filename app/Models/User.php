@@ -6,11 +6,11 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Yajra\Address\HasAddress;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -74,8 +74,38 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function office(): BelongsTo
+
+    protected $appends = ['full_name'];
+
+    /**
+     * Get the participant's full name.
+     */
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => trim("{$this->firstname} {$this->lastname}")
+        );
+    }
+
+    /**
+     * Relationship: User belongs to an Office/School
+     */
+    public function office()
     {
         return $this->belongsTo(Office::class);
+    }
+
+    /**
+     * Relationship: Events joined by the user (as a participant)
+     */
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'event_participants')
+            ->withTimestamps();
+    }
+
+    public function joinedEvents()
+    {
+        return $this->belongsToMany(Event::class, 'event_user', 'user_id', 'event_id')->withTimestamps();
     }
 }
